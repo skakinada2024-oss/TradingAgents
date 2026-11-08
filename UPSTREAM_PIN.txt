@@ -1,0 +1,6 @@
+pinned_upstream=TauricResearch/TradingAgents
+pinned_sha=9fa1196fffbcfd9de5146d2dd2869df84ab99838
+pinned_commit=https://github.com/TauricResearch/TradingAgents/commit/9fa1196fffbcfd9de5146d2dd2869df84ab99838
+fork=skakinada2024-oss/TradingAgents
+fork_sha_at_audit=9fa1196fffbcfd9de5146d2dd2869df84ab99838
+note=Stage 1 is applied on top of this inspected commit. The branch HEAD will move when the stage is committed. The pin does not move.
