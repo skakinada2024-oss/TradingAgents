@@ -23,7 +23,6 @@ from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo
 
-from tradingagents.agents.rating import parse_rating
 from tradingagents.research_stage import MOCK_DECISION, deterministic_gate
 
 PACIFIC = ZoneInfo("America/Los_Angeles")
@@ -34,6 +33,11 @@ MAX_ALLOCATION = Decimal("0.10")
 FEE_RATE = Decimal("0.0001")  # 1 bp of notional, example assumption
 SLIPPAGE_RATE = Decimal("0.0005")  # 5 bp adverse, example assumption
 ALLOWED_SYMBOLS = frozenset({"AAPL"})
+BOOK_NAMES = (
+    "research_hold",
+    "fixture_round_trip",
+    "deterministic_baseline_not_ai",
+)
 STALE_CALENDAR_DAYS = 10
 
 
@@ -361,9 +365,22 @@ def baseline_intents() -> list[Intent]:
     ]
 
 
+def _parse_rating(text: str) -> str:
+    """Load the canonical rating parser without importing the agent package."""
+    import importlib.util
+
+    path = Path(__file__).resolve().parent / "agents" / "rating.py"
+    spec = importlib.util.spec_from_file_location("tradingagents_paper_rating", path)
+    if spec is None or spec.loader is None:
+        raise ImportError(str(path))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.parse_rating(text)
+
+
 def research_hold_intents() -> tuple[str, list[Intent]]:
     """The stage-1 mock completion. Hold does not create an order."""
-    rating = parse_rating(MOCK_DECISION)
+    rating = _parse_rating(MOCK_DECISION)
     if rating not in {"Buy", "Sell"}:
         return rating, []
     side = "buy" if rating == "Buy" else "sell"
@@ -411,8 +428,18 @@ def _run_book(path: Path, intents: list[Intent], bars: list[Bar], as_of: date, n
     }
 
 
-def run_batch(output_dir: Path | str, as_of: date | None = None) -> dict[str, Any]:
-    """One bounded batch. Weekend as-of does not create a live session fill."""
+def run_batch(
+    output_dir: Path | str,
+    as_of: date | None = None,
+    books: tuple[str, ...] | None = None,
+) -> dict[str, Any]:
+    """One bounded batch. Weekend as-of does not create a live session fill.
+
+    ``books`` defaults to every book. The terminal asks for one book at a time.
+    """
+    chosen = BOOK_NAMES if books is None else tuple(books)
+    if not chosen or any(name not in BOOK_NAMES for name in chosen):
+        raise ValueError("book must be one of " + ", ".join(BOOK_NAMES))
     output = Path(output_dir)
     output.mkdir(parents=True, exist_ok=True)
     now = datetime.now(UTC)
@@ -420,17 +447,24 @@ def run_batch(output_dir: Path | str, as_of: date | None = None) -> dict[str, An
     bars = fixture_bars()
     rating, hold_intents = research_hold_intents()
     gate = deterministic_gate(rating)
-    books = {
-        "research_hold": _run_book(output / "research_hold", hold_intents, bars, session_as_of, now),
-        "fixture_round_trip": _run_book(
+    ran: dict[str, dict[str, Any]] = {}
+    if "research_hold" in chosen:
+        ran["research_hold"] = _run_book(output / "research_hold", hold_intents, bars, session_as_of, now)
+    if "fixture_round_trip" in chosen:
+        ran["fixture_round_trip"] = _run_book(
             output / "fixture_round_trip", fixture_round_trip(), bars, session_as_of, now
-        ),
-        "deterministic_baseline_not_ai": _run_book(
+        )
+    if "deterministic_baseline_not_ai" in chosen:
+        ran["deterministic_baseline_not_ai"] = _run_book(
             output / "deterministic_baseline_not_ai", baseline_intents(), bars, session_as_of, now
-        ),
-    }
+        )
     # Replay the fixture book once. A second apply must not add fills.
-    replay = _run_book(output / "fixture_round_trip", fixture_round_trip(), bars, session_as_of, now)
+    replay_fills = 0
+    if "fixture_round_trip" in chosen:
+        replay_fills = _run_book(
+            output / "fixture_round_trip", fixture_round_trip(), bars, session_as_of, now
+        )["fills"]
+    books_out = ran
     audit = {
         "mode": "in_process_paper_simulation",
         "simulated_execution": True,
@@ -454,11 +488,12 @@ def run_batch(output_dir: Path | str, as_of: date | None = None) -> dict[str, An
             "orders": len(hold_intents),
             "label": "mock_completion_not_a_vendor_or_model_call",
         },
+        "selected_books": list(chosen),
         "books": {
             name: {key: value for key, value in book.items() if key != "results"}
-            for name, book in books.items()
+            for name, book in books_out.items()
         },
-        "fixture_replay_fills_added": replay["fills"],
+        "fixture_replay_fills_added": replay_fills,
         "known_limits": [
             "Example fee of 1 bp and slippage of 5 bp are assumptions, not a broker schedule.",
             "Fixture prices are synthetic. Equity in that book is not a strategy profit.",
@@ -469,10 +504,12 @@ def run_batch(output_dir: Path | str, as_of: date | None = None) -> dict[str, An
             "Broker execution_permitted remains false.",
         ],
     }
-    # Attach the fixture fill rows for the evidence file, without a second ledger.
-    audit["fixture_results"] = books["fixture_round_trip"]["results"]
-    audit["research_results"] = books["research_hold"]["results"]
-    audit["baseline_results"] = books["deterministic_baseline_not_ai"]["results"]
+    if "fixture_round_trip" in books_out:
+        audit["fixture_results"] = books_out["fixture_round_trip"]["results"]
+    if "research_hold" in books_out:
+        audit["research_results"] = books_out["research_hold"]["results"]
+    if "deterministic_baseline_not_ai" in books_out:
+        audit["baseline_results"] = books_out["deterministic_baseline_not_ai"]["results"]
     path = output / "audit.json"
     path.write_text(json.dumps(audit, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return audit

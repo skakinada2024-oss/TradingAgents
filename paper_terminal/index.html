@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paper Trading Terminal</title>
+<style>
+  :root {
+    --bg: #070b16;
+    --card: #10182b;
+    --line: #243352;
+    --text: #e7eefc;
+    --muted: #93a0bd;
+    --cyan: #3ee0d2;
+    --teal: #149a9a;
+    --violet: #8b7cff;
+    --amber: #f0c36a;
+    --rose: #ff8f86;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: radial-gradient(1200px 500px at 10% -10%, #15203a, var(--bg));
+    color: var(--text);
+    font: 14px/1.45 ui-sans-serif, system-ui, sans-serif;
+  }
+  header, main { padding: 12px; }
+  .banner {
+    background: #2a2112;
+    color: var(--amber);
+    border-bottom: 1px solid #6a5420;
+    padding: 8px 12px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  h1 { font-size: 1.25rem; margin: 0; }
+  h2 { font-size: 0.78rem; margin: 0 0 8px; color: var(--cyan); letter-spacing: 0.08em; text-transform: uppercase; }
+  .sub { color: var(--muted); margin: 4px 0 0; }
+  .top { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
+  .balance { text-align: right; }
+  .balance strong { display: block; font-size: 1.6rem; color: var(--cyan); font-variant-numeric: tabular-nums; }
+  .controls, .grid, .split, .ledger-wrap { margin-top: 12px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; }
+  label { display: grid; gap: 4px; color: var(--muted); font-size: 0.75rem; }
+  select, button {
+    background: #0c1426;
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font: inherit;
+  }
+  button { cursor: pointer; }
+  button.primary { background: var(--teal); border-color: var(--teal); color: #04120f; font-weight: 700; }
+  button.danger { color: var(--rose); }
+  .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 10px;
+    min-width: 0;
+  }
+  .state { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; }
+  .state.disabled, .state.no_orders { color: var(--muted); }
+  .state.mock, .state.synthetic, .state.scripted { color: var(--violet); }
+  .state.rule, .state.executed { color: var(--cyan); }
+  .split { display: grid; grid-template-columns: 1.4fr 0.8fr; gap: 8px; }
+  svg { width: 100%; height: 160px; background: #0b1222; border-radius: 8px; }
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  th, td { text-align: left; padding: 6px 4px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-size: 0.72rem; }
+  .scroll { overflow-x: auto; }
+  ul { margin: 0; padding-left: 18px; color: var(--muted); }
+  .runs button { display: block; width: 100%; text-align: left; margin-top: 6px; }
+  .error { color: var(--rose); min-height: 1.2em; }
+  @media (max-width: 800px) {
+    .grid, .split { grid-template-columns: 1fr; }
+    .balance { text-align: left; }
+  }
+</style>
+</head>
+<body>
+  <div class="banner">SIMULATED ACCOUNTING · VIRTUAL DOLLARS · NOT A BROKER · NOT A LIVE SESSION</div>
+  <header>
+    <div class="top">
+      <div>
+        <h1>Paper Trading Terminal</h1>
+        <p class="sub">US equity example, AAPL only. Signals are mock, synthetic, or scripted. Fills are computed by the Python ledger.</p>
+      </div>
+      <div class="balance">
+        <span>Virtual equity</span>
+        <strong id="equity">—</strong>
+        <span id="cashline">No run yet</span>
+      </div>
+    </div>
+    <div class="controls">
+      <label>Book
+        <select id="book"></select>
+      </label>
+      <button class="primary" id="run" type="button">Run simulation</button>
+      <button id="reset" type="button" disabled>Reset this run</button>
+      <button id="csv" type="button" disabled>Download CSV</button>
+      <button id="audit" type="button" disabled>Download audit</button>
+    </div>
+    <p class="error" id="error"></p>
+  </header>
+  <main>
+    <section class="grid" id="stages"></section>
+    <section class="split">
+      <article class="card">
+        <h2>Virtual equity</h2>
+        <svg id="chart" viewBox="0 0 320 160" role="img" aria-label="Equity from the ledger"></svg>
+        <p class="sub" id="chartnote">Run a book to plot the ledger.</p>
+      </article>
+      <article class="card">
+        <h2>Position and caps</h2>
+        <p id="position">No position.</p>
+        <ul id="caps"></ul>
+      </article>
+    </section>
+    <section class="card ledger-wrap">
+      <h2>Ledger</h2>
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Pacific time</th><th>Side</th><th>Status</th><th>Qty</th>
+              <th>Fill</th><th>Fee</th><th>Cash after</th><th>Source</th>
+            </tr>
+          </thead>
+          <tbody id="ledger"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="card" style="margin-top:12px">
+      <h2>Saved runs</h2>
+      <div class="runs" id="runs"></div>
+      <ul id="limits"></ul>
+    </section>
+  </main>
+<script>
+const $ = (id) => document.getElementById(id);
+let current = null;
+
+function text(node, value) { node.textContent = value == null ? "" : String(value); }
+
+function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+
+async function api(path, options) {
+  const response = await fetch(path, options);
+  const body = await response.json();
+  if (!response.ok) throw new Error(body.error || "request failed");
+  return body;
+}
+
+function draw(points) {
+  const svg = $("chart");
+  clear(svg);
+  const nums = points.map((point) => Number(point.equity));
+  if (!nums.length || nums.some((value) => !Number.isFinite(value))) {
+    text($("chartnote"), "No equity points in this run.");
+    return;
+  }
+  const min = Math.min(...nums);
+  const max = Math.max(...nums);
+  const span = max - min || 1;
+  const coords = nums.map((value, index) => {
+    const x = nums.length === 1 ? 160 : 8 + (index * 304) / (nums.length - 1);
+    const y = 148 - ((value - min) / span) * 128;
+    return [x, y];
+  });
+  const line = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+  line.setAttribute("fill", "none");
+  line.setAttribute("stroke", "#3ee0d2");
+  line.setAttribute("stroke-width", "2");
+  line.setAttribute("points", coords.map((pair) => pair.join(",")).join(" "));
+  svg.appendChild(line);
+  text($("chartnote"), points.map((point) => point.label + " " + point.equity).join(" · "));
+}
+
+function show(run) {
+  current = run;
+  text($("equity"), run.equity);
+  text($("cashline"), "Cash " + run.cash + " · position " + run.position + " · " + run.fills + " fills");
+  text($("position"), run.position + " share(s). Marked equity " + run.equity + " virtual USD. " + run.fills_are);
+  const stages = $("stages");
+  clear(stages);
+  run.stages.forEach((stage) => {
+    const card = document.createElement("article");
+    card.className = "card";
+    const title = document.createElement("h2");
+    text(title, stage.title);
+    const state = document.createElement("div");
+    state.className = "state " + stage.state;
+    text(state, stage.state.replaceAll("_", " "));
+    const detail = document.createElement("p");
+    text(detail, stage.detail);
+    card.append(title, state, detail);
+    stages.appendChild(card);
+  });
+  draw(run.equity_points);
+  const body = $("ledger");
+  clear(body);
+  if (!run.ledger.length) {
+    const row = document.createElement("tr");
+    const cell = document.createElement("td");
+    cell.colSpan = 8;
+    text(cell, "No ledger rows. The mock Hold signal does not create an order.");
+    row.appendChild(cell);
+    body.appendChild(row);
+  }
+  run.ledger.forEach((entry) => {
+    const row = document.createElement("tr");
+    ["recorded_at_america_los_angeles", "side", "status", "quantity", "fill_price", "fee_usd", "cash_after", "signal_source"]
+      .forEach((key) => {
+        const cell = document.createElement("td");
+        text(cell, entry[key] || "");
+        row.appendChild(cell);
+      });
+    body.appendChild(row);
+  });
+  const limits = $("limits");
+  clear(limits);
+  (run.known_limits || []).forEach((line) => {
+    const item = document.createElement("li");
+    text(item, line);
+    limits.appendChild(item);
+  });
+  $("reset").disabled = false;
+  $("csv").disabled = false;
+  $("audit").disabled = false;
+  location.hash = run.id;
+}
+
+async function refreshRuns() {
+  const data = await api("/api/runs");
+  const box = $("runs");
+  clear(box);
+  if (!data.runs.length) {
+    text(box, "No saved runs in this process directory.");
+    return;
+  }
+  data.runs.forEach((run) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    text(button, run.book_label + " · equity " + run.equity + " · " + run.recorded_at_america_los_angeles);
+    button.addEventListener("click", async () => {
+      $("error").textContent = "";
+      show(await api("/api/runs/" + run.id));
+    });
+    box.appendChild(button);
+  });
+}
+
+async function boot() {
+  const info = await api("/api/meta");
+  const select = $("book");
+  info.books.forEach((book) => {
+    const option = document.createElement("option");
+    option.value = book.id;
+    option.textContent = book.label;
+    select.appendChild(option);
+  });
+  const caps = $("caps");
+  [
+    "Symbol " + info.symbol + " " + info.currency,
+    "Starting cash " + info.starting_cash_usd,
+    "Max allocation " + info.max_allocation,
+    "Fee rate " + info.fee_rate,
+    "Slippage rate " + info.slippage_rate,
+    info.fill_rule,
+    info.price_source,
+    "execution_permitted " + info.execution_permitted,
+  ].forEach((line) => {
+    const item = document.createElement("li");
+    text(item, line);
+    caps.appendChild(item);
+  });
+  await refreshRuns();
+  const hash = location.hash.replace("#", "");
+  if (/^[a-f0-9]{32}$/.test(hash)) {
+    try { show(await api("/api/runs/" + hash)); } catch (error) { $("error").textContent = error.message; }
+  }
+}
+
+$("run").addEventListener("click", async () => {
+  $("error").textContent = "";
+  $("run").disabled = true;
+  try {
+    const run = await api("/api/runs", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({book: $("book").value}),
+    });
+    show(run);
+    await refreshRuns();
+  } catch (error) {
+    $("error").textContent = error.message;
+  } finally {
+    $("run").disabled = false;
+  }
+});
+
+$("reset").addEventListener("click", async () => {
+  if (!current) return;
+  $("error").textContent = "";
+  await api("/api/runs/" + current.id, {method: "DELETE"});
+  current = null;
+  location.hash = "";
+  text($("equity"), "—");
+  text($("cashline"), "Run reset. The files for that id were removed.");
+  clear($("stages"));
+  clear($("ledger"));
+  clear($("chart"));
+  $("reset").disabled = true;
+  $("csv").disabled = true;
+  $("audit").disabled = true;
+  await refreshRuns();
+});
+
+function download(kind) {
+  if (!current) return;
+  window.location = "/api/runs/" + current.id + "/" + kind;
+}
+$("csv").addEventListener("click", () => download("ledger.csv"));
+$("audit").addEventListener("click", () => download("audit.json"));
+
+boot().catch((error) => { $("error").textContent = error.message; });
+</script>
+</body>
+</html>

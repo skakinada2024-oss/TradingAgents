@@ -28,8 +28,6 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-import httpx
-
 PINNED_UPSTREAM_SHA = "9fa1196fffbcfd9de5146d2dd2869df84ab99838"
 STAGE = "1"
 # In-process stand-in so client construction can finish without a real key.
@@ -229,6 +227,8 @@ def _decision_text(override: str | None) -> str:
 
 
 def _mock_clients(model: str, decision_text: str, deadline: float, counter: dict[str, Any]):
+    import httpx
+
     def handler(request: httpx.Request) -> httpx.Response:
         counter["calls"] += 1
         counter["urls"].append(str(request.url))
