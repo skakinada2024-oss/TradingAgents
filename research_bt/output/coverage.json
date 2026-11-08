@@ -1,0 +1,24 @@
+{
+  "retrieved_utc": "2026-11-08T22:44:30.628731+00:00",
+  "BTC-USD": {
+    "bars": 1042,
+    "first": 1704067200,
+    "last": 1794009600,
+    "sha256": "ca97f9ad003c6451390da1a72a9c788a769c7c62a3b0dfe75aebde5a9d921800",
+    "gaps_over_36h": 0
+  },
+  "ETH-USD": {
+    "bars": 1042,
+    "first": 1704067200,
+    "last": 1794009600,
+    "sha256": "e5b9132f25a35a1bc77b673b0777dc2ea13d7c0e29078eff5607266b0835ad05",
+    "gaps_over_36h": 0
+  },
+  "SOL-USD": {
+    "bars": 1042,
+    "first": 1704067200,
+    "last": 1794009600,
+    "sha256": "e7353a2d318f7a69c41f186aa29b169f85a3ce87a86fb9adf61c9b56a9d88cc2",
+    "gaps_over_36h": 0
+  }
+}

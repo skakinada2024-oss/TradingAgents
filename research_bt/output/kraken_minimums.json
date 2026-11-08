@@ -1,0 +1,17 @@
+{
+  "SOL-USD": {
+    "ordermin": 0.05,
+    "costmin": 0.5,
+    "source": "https://api.kraken.com/0/public/AssetPairs?pair=XBTUSD,ETHUSD,SOLUSD"
+  },
+  "ETH-USD": {
+    "ordermin": 0.002,
+    "costmin": 0.5,
+    "source": "https://api.kraken.com/0/public/AssetPairs?pair=XBTUSD,ETHUSD,SOLUSD"
+  },
+  "BTC-USD": {
+    "ordermin": 6e-05,
+    "costmin": 0.5,
+    "source": "https://api.kraken.com/0/public/AssetPairs?pair=XBTUSD,ETHUSD,SOLUSD"
+  }
+}

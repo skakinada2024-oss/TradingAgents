@@ -1,0 +1,63 @@
+{
+  "status": "checked",
+  "as_of_session": "2026-11-06",
+  "source": "tradingagents yahoo load_ohlcv, fill_gaps false, rows after 2026-11-06 and weekend rows dropped",
+  "rows": [
+    {
+      "symbol": "SPY",
+      "bars": 1255,
+      "last_session": "2026-11-06",
+      "completed_trades": 0,
+      "blocked_entries": 1,
+      "net_return": 0.0,
+      "note": "Whole shares and a 10 percent cap. One share above 10 USD cannot be bought."
+    },
+    {
+      "symbol": "QQQ",
+      "bars": 1255,
+      "last_session": "2026-11-06",
+      "completed_trades": 0,
+      "blocked_entries": 1,
+      "net_return": 0.0,
+      "note": "Whole shares and a 10 percent cap. One share above 10 USD cannot be bought."
+    },
+    {
+      "symbol": "NVDA",
+      "bars": 1255,
+      "last_session": "2026-11-06",
+      "completed_trades": 0,
+      "blocked_entries": 1,
+      "net_return": 0.0,
+      "note": "Whole shares and a 10 percent cap. One share above 10 USD cannot be bought."
+    },
+    {
+      "symbol": "AMD",
+      "bars": 1255,
+      "last_session": "2026-11-06",
+      "completed_trades": 0,
+      "blocked_entries": 1,
+      "net_return": 0.0,
+      "note": "Whole shares and a 10 percent cap. One share above 10 USD cannot be bought."
+    },
+    {
+      "symbol": "AAPL",
+      "bars": 1255,
+      "last_session": "2026-11-06",
+      "completed_trades": 0,
+      "blocked_entries": 1,
+      "net_return": 0.0,
+      "note": "Whole shares and a 10 percent cap. One share above 10 USD cannot be bought."
+    },
+    {
+      "symbol": "MSFT",
+      "bars": 1255,
+      "last_session": "2026-11-06",
+      "completed_trades": 0,
+      "blocked_entries": 1,
+      "net_return": 0.0,
+      "note": "Whole shares and a 10 percent cap. One share above 10 USD cannot be bought."
+    }
+  ],
+  "errors": [],
+  "summary": "Yahoo history was filtered through the Friday 2026-11-06 session. Sunday 2026-11-08 was not given a bar. A whole share costs more than the 10 USD allocation on every checked name, so the cash book completed no stock trade."
+}

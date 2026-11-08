@@ -1,0 +1,126 @@
+{
+  "retrieved_utc": "2026-11-08T22:44:30.628731+00:00",
+  "decision": {
+    "recommendation": "NO_TRADE",
+    "passed_unseen_keys": [],
+    "rule": "Unseen net return > 0, profit factor > 1, and at least 30 completed trades on every listed cost rate."
+  },
+  "coverage": {
+    "BTC-USD": {
+      "bars": 1042,
+      "first": 1704067200,
+      "last": 1794009600,
+      "sha256": "ca97f9ad003c6451390da1a72a9c788a769c7c62a3b0dfe75aebde5a9d921800",
+      "gaps_over_36h": 0
+    },
+    "ETH-USD": {
+      "bars": 1042,
+      "first": 1704067200,
+      "last": 1794009600,
+      "sha256": "e5b9132f25a35a1bc77b673b0777dc2ea13d7c0e29078eff5607266b0835ad05",
+      "gaps_over_36h": 0
+    },
+    "SOL-USD": {
+      "bars": 1042,
+      "first": 1704067200,
+      "last": 1794009600,
+      "sha256": "e7353a2d318f7a69c41f186aa29b169f85a3ce87a86fb9adf61c9b56a9d88cc2",
+      "gaps_over_36h": 0
+    }
+  },
+  "products": {
+    "BTC-USD": {
+      "id": "BTC-USD",
+      "base_increment": "0.00000001",
+      "quote_increment": "0.01",
+      "min_market_funds": "1",
+      "status": "online",
+      "source": "https://api.exchange.coinbase.com/products/BTC-USD"
+    },
+    "ETH-USD": {
+      "id": "ETH-USD",
+      "base_increment": "0.00000001",
+      "quote_increment": "0.01",
+      "min_market_funds": "1",
+      "status": "online",
+      "source": "https://api.exchange.coinbase.com/products/ETH-USD"
+    },
+    "SOL-USD": {
+      "id": "SOL-USD",
+      "base_increment": "0.00000001",
+      "quote_increment": "0.01",
+      "min_market_funds": "1",
+      "status": "online",
+      "source": "https://api.exchange.coinbase.com/products/SOL-USD"
+    }
+  },
+  "stocks": {
+    "status": "checked",
+    "as_of_session": "2026-11-06",
+    "source": "tradingagents yahoo load_ohlcv, fill_gaps false, rows after 2026-11-06 and weekend rows dropped",
+    "rows": [
+      {
+        "symbol": "SPY",
+        "bars": 1255,
+        "last_session": "2026-11-06",
+        "completed_trades": 0,
+        "blocked_entries": 1,
+        "net_return": 0.0,
+        "note": "Whole shares and a 10 percent cap. One share above 10 USD cannot be bought."
+      },
+      {
+        "symbol": "QQQ",
+        "bars": 1255,
+        "last_session": "2026-11-06",
+        "completed_trades": 0,
+        "blocked_entries": 1,
+        "net_return": 0.0,
+        "note": "Whole shares and a 10 percent cap. One share above 10 USD cannot be bought."
+      },
+      {
+        "symbol": "NVDA",
+        "bars": 1255,
+        "last_session": "2026-11-06",
+        "completed_trades": 0,
+        "blocked_entries": 1,
+        "net_return": 0.0,
+        "note": "Whole shares and a 10 percent cap. One share above 10 USD cannot be bought."
+      },
+      {
+        "symbol": "AMD",
+        "bars": 1255,
+        "last_session": "2026-11-06",
+        "completed_trades": 0,
+        "blocked_entries": 1,
+        "net_return": 0.0,
+        "note": "Whole shares and a 10 percent cap. One share above 10 USD cannot be bought."
+      },
+      {
+        "symbol": "AAPL",
+        "bars": 1255,
+        "last_session": "2026-11-06",
+        "completed_trades": 0,
+        "blocked_entries": 1,
+        "net_return": 0.0,
+        "note": "Whole shares and a 10 percent cap. One share above 10 USD cannot be bought."
+      },
+      {
+        "symbol": "MSFT",
+        "bars": 1255,
+        "last_session": "2026-11-06",
+        "completed_trades": 0,
+        "blocked_entries": 1,
+        "net_return": 0.0,
+        "note": "Whole shares and a 10 percent cap. One share above 10 USD cannot be bought."
+      }
+    ],
+    "errors": [],
+    "summary": "Yahoo history was filtered through the Friday 2026-11-06 session. Sunday 2026-11-08 was not given a bar. A whole share costs more than the 10 USD allocation on every checked name, so the cash book completed no stock trade."
+  },
+  "cost_rates_per_side": [
+    0.001,
+    0.0025
+  ],
+  "cost_note": "Each rate is a labeled stress, not an exchange or TradingView fee schedule.",
+  "tv_note": "ETH-USD and SOL-USD are not claimed TradingView-feasible. BTC step 0.0001 is parent-reported."
+}

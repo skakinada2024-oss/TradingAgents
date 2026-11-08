@@ -1,0 +1,7 @@
+command: .venv/bin/python -m pytest tests/test_research_bt.py -q --tb=line
+............                                                             [100%]
+12 passed in 0.88s
+command: .venv/bin/python -m research_bt.run_research research_bt/output
+elapsed_s 4.92
+decision NO_TRADE
+No order was sent. No TradingView session was started. No 12 hour monitor was started.

@@ -1,0 +1,26 @@
+{
+  "BTC-USD": {
+    "id": "BTC-USD",
+    "base_increment": "0.00000001",
+    "quote_increment": "0.01",
+    "min_market_funds": "1",
+    "status": "online",
+    "source": "https://api.exchange.coinbase.com/products/BTC-USD"
+  },
+  "ETH-USD": {
+    "id": "ETH-USD",
+    "base_increment": "0.00000001",
+    "quote_increment": "0.01",
+    "min_market_funds": "1",
+    "status": "online",
+    "source": "https://api.exchange.coinbase.com/products/ETH-USD"
+  },
+  "SOL-USD": {
+    "id": "SOL-USD",
+    "base_increment": "0.00000001",
+    "quote_increment": "0.01",
+    "min_market_funds": "1",
+    "status": "online",
+    "source": "https://api.exchange.coinbase.com/products/SOL-USD"
+  }
+}
