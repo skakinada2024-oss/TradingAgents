@@ -18,7 +18,7 @@ import argparse
 import json
 import sys
 from datetime import UTC, datetime
-from decimal import Decimal
+from decimal import ROUND_DOWN, Decimal
 from typing import Any
 
 # ENUM_ACCOUNT_TRADE_MODE, documented order DEMO, CONTEST, REAL.
@@ -32,6 +32,7 @@ SYMBOL_TRADE_MODE_SHORTONLY = 2
 SYMBOL_TRADE_MODE_CLOSEONLY = 3
 SYMBOL_TRADE_MODE_FULL = 4
 
+ALLOCATION_CAP = Decimal("0.10")
 EQUITY_LOSS_CUTOFF_USD = Decimal("5")
 MAX_POSITIONS = 1
 MAX_ELAPSED_SECONDS = 12 * 60 * 60
@@ -86,6 +87,12 @@ def _decimal(value: Any, label: str) -> Decimal:
     if value is None or value == "":
         raise ValueError(label)
     return Decimal(str(value))
+
+
+def allocation_budget_usd(balance: Decimal, equity: Decimal) -> Decimal:
+    """Ten percent of the smaller of cash and equity, rounded down."""
+    base = min(balance, equity)
+    return (base * ALLOCATION_CAP).quantize(Decimal("0.01"), rounding=ROUND_DOWN)
 
 
 def public_view(report: dict[str, Any]) -> dict[str, Any]:
@@ -150,13 +157,11 @@ def evaluate(
             reasons.append("account currency is not USD")
         if first.get("trade_allowed") is not True:
             reasons.append("account trade_allowed is not true")
-        leverage = first.get("leverage")
-        if leverage != 1:
-            reasons.append(
-                "account leverage is not 1; gross leverage stays refused"
-            )
+        # account.leverage is the broker maximum (for example 100). It is not
+        # the exposure this check will take. Exposure is capped in cash terms.
 
     notional = None
+    budget = None
     if symbol and symbol_info is None:
         reasons.append("symbol_info is missing")
     elif symbol_info is not None:
@@ -190,12 +195,18 @@ def evaluate(
             else:
                 if volume_min <= 0 or contract <= 0 or ask <= 0:
                     reasons.append("min-lot metadata is missing")
-                elif first is not None and first.get("balance") is not None:
+                elif first is None or first.get("balance") is None or first.get("equity") is None:
+                    reasons.append("balance or equity is missing")
+                else:
                     balance = _decimal(first["balance"], "balance")
-                    if notional > balance:
+                    equity = _decimal(first["equity"], "equity")
+                    budget = allocation_budget_usd(balance, equity)
+                    if notional > min(balance, equity):
+                        reasons.append("minimum volume gross notional exceeds cash and equity")
+                    if notional > budget:
                         reasons.append(
-                            "minimum volume gross notional exceeds cash; "
-                            "the cap is not loosened and the CFD is not treated as a share"
+                            "minimum volume gross notional exceeds the 10 percent "
+                            "allocation of cash and equity; the contract is not resized"
                         )
 
     eligible = not reasons
@@ -217,6 +228,11 @@ def evaluate(
         "terminal_build": None if terminal is None else terminal.get("build"),
         "positions_total": positions,
         "min_lot_gross_usd": None if notional is None else format(notional, "f"),
+        "allocation_budget_usd": None if budget is None else format(budget, "f"),
+        "allocation_cap": format(ALLOCATION_CAP, "f"),
+        "leverage_note": (
+            "account.leverage is the broker maximum, not the gross exposure used here"
+        ),
         "limits": proposed_limits(),
         "checked_at": now.astimezone(UTC).isoformat(),
     }

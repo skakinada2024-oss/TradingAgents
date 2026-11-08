@@ -24,7 +24,10 @@ The process prints a JSON report and exits. `execution_enabled` is false. `eligi
 - `symbol_info` and `symbol_info_tick` for the symbol you named
 - `positions_total`
 
-Demo only (`ACCOUNT_TRADE_MODE_DEMO`). Contest, real, and any other mode fail. Currency must be USD. Leverage must be 1, because gross leverage stays refused. The minimum-volume gross notional is `volume_min * trade_contract_size * ask` from the official symbol fields. If that exceeds cash, the check fails and does not treat the contract as a share. Profit currency other than USD is not converted. A quote older than 30 seconds is stale. A quote older than 15 minutes, or a disabled or close-only symbol, is not an open session. An open position fails closed because this check will not close it.
+Account leverage, including 1:100, is the broker maximum. It is not treated as
+100x exposure. Gross notional of the minimum volume must fit in 10 percent of
+the smaller of balance and equity, and must also fit in that cash balance.
+A quote currency other than USD is not converted.
 
 Login, name, server, company, and terminal paths are not printed.
 

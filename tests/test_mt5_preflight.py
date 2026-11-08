@@ -161,12 +161,29 @@ def test_disconnected_stale_and_closed_quotes_fail():
 def test_missing_symbol_and_min_lot_gross_are_refused():
     missing = _report(Fake(_account(), _terminal(), None, None))
     assert any("symbol_info is missing" in reason for reason in missing["reasons"])
-    fx = _report(Fake(_account(balance="100", leverage=100), _terminal(), _symbol(), _tick()))
+    fx = _report(Fake(_account(balance="100", equity="100", leverage=100), _terminal(), _symbol(), _tick()))
     assert fx["eligible"] is False
+    assert fx["account_leverage"] == 100
     assert fx["min_lot_gross_usd"] == "1100.00"
-    assert any("gross leverage" in reason for reason in fx["reasons"])
-    assert any("exceeds cash" in reason for reason in fx["reasons"])
-    assert "share" in " ".join(fx["reasons"])
+    assert not any("leverage is not 1" in reason for reason in fx["reasons"])
+    assert any("10 percent" in reason for reason in fx["reasons"])
+    large = _report(Fake(
+        _account(balance="100000", equity="100000", leverage=100),
+        _terminal(),
+        _symbol(),
+        _tick(ask="1.11416"),
+    ))
+    assert large["eligible"] is True
+    assert large["min_lot_gross_usd"] == "1114.16"
+    assert large["account_leverage"] == 100
+    jpy = _report(Fake(
+        _account(balance="100000", equity="100000", leverage=100),
+        _terminal(),
+        _symbol(currency_profit="JPY"),
+        _tick(ask="1.11416"),
+    ))
+    assert jpy["eligible"] is False
+    assert any("no conversion" in reason for reason in jpy["reasons"])
 
 
 def test_linux_launcher_does_not_attach(monkeypatch):
