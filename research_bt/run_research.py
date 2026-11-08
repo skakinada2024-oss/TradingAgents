@@ -33,6 +33,10 @@ def _scenario(name: str, step: float, min_notional: float) -> dict:
 
 
 def run(out_dir: Path) -> dict:
+    raise RuntimeError(
+        "research_bt/output is the first run and is left in place. "
+        "The methodology correction is python -m research_bt.rerun."
+    )
     out_dir.mkdir(parents=True, exist_ok=True)
     retrieved = datetime.now(UTC).isoformat()
     meta = {}

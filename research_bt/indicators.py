@@ -117,7 +117,7 @@ def donchian_prior(highs, lows, period: int):
 
 
 def utc_day_vwap(times, highs, lows, closes, volumes):
-    """Typical-price VWAP reset at each UTC date. Crypto has no exchange session."""
+    """One value per bar. A daily series makes this a single HLC3 print, not a pullback."""
     out = [None] * len(closes)
     bucket = None
     pv = 0.0
@@ -134,3 +134,28 @@ def utc_day_vwap(times, highs, lows, closes, volumes):
         if vol > 0:
             out[i] = pv / vol
     return out
+
+
+def anchored_session_vwap(times, highs, lows, closes, volumes):
+    """UTC-day VWAP from closed bars only. The value at i ignores later bars."""
+    out: list[float | None] = [None] * len(closes)
+    count = [0] * len(closes)
+    bucket = None
+    pv = 0.0
+    vol = 0.0
+    seen = 0
+    for i, ts in enumerate(times):
+        day = int(ts) // 86400
+        if day != bucket:
+            bucket = day
+            pv = 0.0
+            vol = 0.0
+            seen = 0
+        typical = (highs[i] + lows[i] + closes[i]) / 3.0
+        vol += volumes[i]
+        pv += typical * volumes[i]
+        seen += 1
+        count[i] = seen
+        if vol > 0:
+            out[i] = pv / vol
+    return out, count

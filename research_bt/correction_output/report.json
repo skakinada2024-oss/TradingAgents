@@ -1,0 +1,174 @@
+{
+  "retrieved_utc": "2026-11-08T22:56:02.359135+00:00",
+  "specification": {
+    "kind": "posthoc_methodology_correction",
+    "fresh_unseen": false,
+    "daily_holdout_label": "inspected_holdout",
+    "vwap_holdout_label": "first_look_holdout",
+    "rejected_proxy": "one-bar UTC HLC3 cross is not a VWAP pullback",
+    "vwap_rule": "UTC session VWAP, at least 4 closed bars, prior close above VWAP, signal bar low at or through VWAP and close back above, entry on the next bar",
+    "costs": [
+      {
+        "name": "primary_65bps_per_side",
+        "role": "primary_stress",
+        "commission": 0.006,
+        "slip": 0.0005
+      },
+      {
+        "name": "primary_70bps_per_side",
+        "role": "primary_stress",
+        "commission": 0.006,
+        "slip": 0.001
+      },
+      {
+        "name": "optimistic_10bps_per_side",
+        "role": "optimistic_sensitivity",
+        "commission": 0.001,
+        "slip": 0.0
+      },
+      {
+        "name": "optimistic_25bps_per_side",
+        "role": "optimistic_sensitivity",
+        "commission": 0.0025,
+        "slip": 0.0
+      }
+    ],
+    "spread_rate": 0.0,
+    "spread_note": "Candles are trade prints. Slippage is the allowance for crossing the spread. A spread is not added again.",
+    "risk_per_trade_usd": 0.5,
+    "risk_note": "Size uses the stop as the adverse exit and adds entry and exit commission and slippage. The planned loss is kept at or under 0.50. A gap can lose more. No future exit price is used.",
+    "experiment_loss": "cumulative realized losses, not restored by later profits, no calendar reset, per 100 USD book. The next entry is sized to the budget still left, so the plan does not exceed 2 USD. A gap can still lose more.",
+    "monthly_loss": "separate research scenario, resets each UTC month",
+    "two_hour_loss": "separate intraday research scenario, resets every 7200 seconds and is not the whole-book allowance",
+    "trade_count_note": "A 30-trade cutoff in the first run was this study's heuristic. It is not a guarantee and a low count is inconclusive even when the return is positive."
+  },
+  "decision": {
+    "recommendation": "NO_TRADE",
+    "reason": "This is a second look at an already inspected daily holdout, plus one historical intraday VWAP window. Low trade counts are inconclusive. The 30-trade figure is not a guarantee."
+  },
+  "daily_source": "research_bt/output candles from the first retrieval; not a new daily download",
+  "vwap_coverage": {
+    "granularity_seconds": 900,
+    "requested_start": "2026-04-22T22:56:00+00:00",
+    "markets": {
+      "BTC-USD": {
+        "bars": 19174,
+        "utc_days": 201,
+        "first": 1776898800,
+        "last": 1794177000,
+        "missing_15m_slots": 25,
+        "sha256": "27ece4569e19860dc2c4d28787767cbfdb5269b5b75d8881957b35d99ff2b0ce",
+        "regime_note": "One recent window of about 200 days. Not a multi-regime sample."
+      },
+      "ETH-USD": {
+        "bars": 19174,
+        "utc_days": 201,
+        "first": 1776898800,
+        "last": 1794177000,
+        "missing_15m_slots": 25,
+        "sha256": "8e2fabe66e20ba26841ee731e16e47ce67f871f198b49025e137832e1957c2c3",
+        "regime_note": "One recent window of about 200 days. Not a multi-regime sample."
+      },
+      "SOL-USD": {
+        "bars": 19174,
+        "utc_days": 201,
+        "first": 1776898800,
+        "last": 1794177000,
+        "missing_15m_slots": 25,
+        "sha256": "12b1df30ada9c6f7d65c520bdd9aec8b792467784a3884f2ce1688e1086461af",
+        "regime_note": "One recent window of about 200 days. Not a multi-regime sample."
+      }
+    }
+  },
+  "stocks": {
+    "status": "checked",
+    "summary": "Whole shares were checked against 100 USD cash and against a 0.50 USD planned loss using the Friday 2026-11-06 close, a 1.5 ATR stop, 60 bps commission and 5 bps slippage per side. The earlier 10 USD allocation was not the constraint. Yahoo does not publish a share increment, so a fractional account is not assumed.",
+    "rows": [
+      {
+        "price": 735.2899780273438,
+        "stop": 719.5489951862129,
+        "one_share_cash_out": 740.0715687544556,
+        "planned_loss_one_share": 25.197483389967495,
+        "cash_rejects_one_share": true,
+        "risk_rejects_one_share": true,
+        "fractional_share_metadata": "absent_from_price_source",
+        "allocation_cap_used": false,
+        "symbol": "SPY",
+        "session": "2026-11-06",
+        "sunday_bar": false,
+        "note": "Priced at the Friday close. Sunday 2026-11-08 has no bar and no fill was simulated."
+      },
+      {
+        "price": 656.0999755859375,
+        "stop": 632.9228535033061,
+        "one_share_cash_out": 660.3665937271728,
+        "planned_loss_one_share": 31.55584000307769,
+        "cash_rejects_one_share": true,
+        "risk_rejects_one_share": true,
+        "fractional_share_metadata": "absent_from_price_source",
+        "allocation_cap_used": false,
+        "symbol": "QQQ",
+        "session": "2026-11-06",
+        "sunday_bar": false,
+        "note": "Priced at the Friday close. Sunday 2026-11-08 has no bar and no fill was simulated."
+      },
+      {
+        "price": 186.63999938964844,
+        "stop": 174.98743834148945,
+        "one_share_cash_out": 187.8537193056793,
+        "planned_loss_one_share": 14.00317435109451,
+        "cash_rejects_one_share": true,
+        "risk_rejects_one_share": true,
+        "fractional_share_metadata": "absent_from_price_source",
+        "allocation_cap_used": false,
+        "symbol": "NVDA",
+        "session": "2026-11-06",
+        "sunday_bar": false,
+        "note": "Priced at the Friday close. Sunday 2026-11-08 has no bar and no fill was simulated."
+      },
+      {
+        "price": 449.0400085449219,
+        "stop": 394.1277193400975,
+        "one_share_cash_out": 451.9601157204895,
+        "planned_loss_one_share": 60.393044172944606,
+        "cash_rejects_one_share": true,
+        "risk_rejects_one_share": true,
+        "fractional_share_metadata": "absent_from_price_source",
+        "allocation_cap_used": false,
+        "symbol": "AMD",
+        "session": "2026-11-06",
+        "sunday_bar": false,
+        "note": "Priced at the Friday close. Sunday 2026-11-08 has no bar and no fill was simulated."
+      },
+      {
+        "price": 342.3699951171875,
+        "stop": 329.2141633506875,
+        "one_share_cash_out": 344.59642719543456,
+        "planned_loss_one_share": 17.521168264036447,
+        "cash_rejects_one_share": true,
+        "risk_rejects_one_share": true,
+        "fractional_share_metadata": "absent_from_price_source",
+        "allocation_cap_used": false,
+        "symbol": "AAPL",
+        "session": "2026-11-06",
+        "sunday_bar": false,
+        "note": "Priced at the Friday close. Sunday 2026-11-08 has no bar and no fill was simulated."
+      },
+      {
+        "price": 530.6099853515625,
+        "stop": 507.452877171052,
+        "one_share_cash_out": 534.0605420863037,
+        "planned_loss_one_share": 29.90458625823193,
+        "cash_rejects_one_share": true,
+        "risk_rejects_one_share": true,
+        "fractional_share_metadata": "absent_from_price_source",
+        "allocation_cap_used": false,
+        "symbol": "MSFT",
+        "session": "2026-11-06",
+        "sunday_bar": false,
+        "note": "Priced at the Friday close. Sunday 2026-11-08 has no bar and no fill was simulated."
+      }
+    ],
+    "errors": []
+  }
+}

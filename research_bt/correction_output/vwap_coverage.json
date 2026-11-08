@@ -1,0 +1,33 @@
+{
+  "granularity_seconds": 900,
+  "requested_start": "2026-04-22T22:56:00+00:00",
+  "markets": {
+    "BTC-USD": {
+      "bars": 19174,
+      "utc_days": 201,
+      "first": 1776898800,
+      "last": 1794177000,
+      "missing_15m_slots": 25,
+      "sha256": "27ece4569e19860dc2c4d28787767cbfdb5269b5b75d8881957b35d99ff2b0ce",
+      "regime_note": "One recent window of about 200 days. Not a multi-regime sample."
+    },
+    "ETH-USD": {
+      "bars": 19174,
+      "utc_days": 201,
+      "first": 1776898800,
+      "last": 1794177000,
+      "missing_15m_slots": 25,
+      "sha256": "8e2fabe66e20ba26841ee731e16e47ce67f871f198b49025e137832e1957c2c3",
+      "regime_note": "One recent window of about 200 days. Not a multi-regime sample."
+    },
+    "SOL-USD": {
+      "bars": 19174,
+      "utc_days": 201,
+      "first": 1776898800,
+      "last": 1794177000,
+      "missing_15m_slots": 25,
+      "sha256": "12b1df30ada9c6f7d65c520bdd9aec8b792467784a3884f2ce1688e1086461af",
+      "regime_note": "One recent window of about 200 days. Not a multi-regime sample."
+    }
+  }
+}

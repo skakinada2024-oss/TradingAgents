@@ -1,0 +1,91 @@
+{
+  "status": "checked",
+  "summary": "Whole shares were checked against 100 USD cash and against a 0.50 USD planned loss using the Friday 2026-11-06 close, a 1.5 ATR stop, 60 bps commission and 5 bps slippage per side. The earlier 10 USD allocation was not the constraint. Yahoo does not publish a share increment, so a fractional account is not assumed.",
+  "rows": [
+    {
+      "price": 735.2899780273438,
+      "stop": 719.5489951862129,
+      "one_share_cash_out": 740.0715687544556,
+      "planned_loss_one_share": 25.197483389967495,
+      "cash_rejects_one_share": true,
+      "risk_rejects_one_share": true,
+      "fractional_share_metadata": "absent_from_price_source",
+      "allocation_cap_used": false,
+      "symbol": "SPY",
+      "session": "2026-11-06",
+      "sunday_bar": false,
+      "note": "Priced at the Friday close. Sunday 2026-11-08 has no bar and no fill was simulated."
+    },
+    {
+      "price": 656.0999755859375,
+      "stop": 632.9228535033061,
+      "one_share_cash_out": 660.3665937271728,
+      "planned_loss_one_share": 31.55584000307769,
+      "cash_rejects_one_share": true,
+      "risk_rejects_one_share": true,
+      "fractional_share_metadata": "absent_from_price_source",
+      "allocation_cap_used": false,
+      "symbol": "QQQ",
+      "session": "2026-11-06",
+      "sunday_bar": false,
+      "note": "Priced at the Friday close. Sunday 2026-11-08 has no bar and no fill was simulated."
+    },
+    {
+      "price": 186.63999938964844,
+      "stop": 174.98743834148945,
+      "one_share_cash_out": 187.8537193056793,
+      "planned_loss_one_share": 14.00317435109451,
+      "cash_rejects_one_share": true,
+      "risk_rejects_one_share": true,
+      "fractional_share_metadata": "absent_from_price_source",
+      "allocation_cap_used": false,
+      "symbol": "NVDA",
+      "session": "2026-11-06",
+      "sunday_bar": false,
+      "note": "Priced at the Friday close. Sunday 2026-11-08 has no bar and no fill was simulated."
+    },
+    {
+      "price": 449.0400085449219,
+      "stop": 394.1277193400975,
+      "one_share_cash_out": 451.9601157204895,
+      "planned_loss_one_share": 60.393044172944606,
+      "cash_rejects_one_share": true,
+      "risk_rejects_one_share": true,
+      "fractional_share_metadata": "absent_from_price_source",
+      "allocation_cap_used": false,
+      "symbol": "AMD",
+      "session": "2026-11-06",
+      "sunday_bar": false,
+      "note": "Priced at the Friday close. Sunday 2026-11-08 has no bar and no fill was simulated."
+    },
+    {
+      "price": 342.3699951171875,
+      "stop": 329.2141633506875,
+      "one_share_cash_out": 344.59642719543456,
+      "planned_loss_one_share": 17.521168264036447,
+      "cash_rejects_one_share": true,
+      "risk_rejects_one_share": true,
+      "fractional_share_metadata": "absent_from_price_source",
+      "allocation_cap_used": false,
+      "symbol": "AAPL",
+      "session": "2026-11-06",
+      "sunday_bar": false,
+      "note": "Priced at the Friday close. Sunday 2026-11-08 has no bar and no fill was simulated."
+    },
+    {
+      "price": 530.6099853515625,
+      "stop": 507.452877171052,
+      "one_share_cash_out": 534.0605420863037,
+      "planned_loss_one_share": 29.90458625823193,
+      "cash_rejects_one_share": true,
+      "risk_rejects_one_share": true,
+      "fractional_share_metadata": "absent_from_price_source",
+      "allocation_cap_used": false,
+      "symbol": "MSFT",
+      "session": "2026-11-06",
+      "sunday_bar": false,
+      "note": "Priced at the Friday close. Sunday 2026-11-08 has no bar and no fill was simulated."
+    }
+  ],
+  "errors": []
+}

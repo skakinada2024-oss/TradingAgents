@@ -1,0 +1,7 @@
+command: .venv/bin/python -m pytest tests/test_research_bt.py -q --tb=line
+...................                                                      [100%]
+19 passed in 0.75s
+command: .venv/bin/python -u -m research_bt.rerun research_bt/correction_output
+elapsed_s about 79
+decision NO_TRADE
+No order was sent. No MetaTrader code was changed. No monitor was started.

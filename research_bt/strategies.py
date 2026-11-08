@@ -7,13 +7,13 @@ searched. See docs/STRATEGY_SOURCE_MAP.md for the files that were read.
 from __future__ import annotations
 
 from research_bt.indicators import (
+    anchored_session_vwap,
     atr,
     bollinger,
     donchian_prior,
     ema,
     macd,
     rsi_wilder,
-    utc_day_vwap,
 )
 
 # Frozen. Not fit on the unseen slice.
@@ -45,8 +45,6 @@ def build(family: str, bars: list[dict]) -> tuple[list[str], list[float | None]]
     closes = [bar["close"] for bar in bars]
     highs = [bar["high"] for bar in bars]
     lows = [bar["low"] for bar in bars]
-    volumes = [bar["volume"] for bar in bars]
-    times = [bar["time"] for bar in bars]
     n = len(bars)
     signals = ["hold"] * n
     stops = _stops_from_atr(highs, lows, closes)
@@ -79,14 +77,10 @@ def build(family: str, bars: list[dict]) -> tuple[list[str], list[float | None]]
             elif hist[i - 1] >= 0 > hist[i]:
                 signals[i] = "exit"
     elif family == "vwap_pullback":
-        vwap = utc_day_vwap(times, highs, lows, closes, volumes)
-        for i in range(1, n):
-            if vwap[i] is None or vwap[i - 1] is None:
-                continue
-            if closes[i - 1] < vwap[i - 1] and closes[i] > vwap[i]:
-                signals[i] = "enter"
-            elif closes[i - 1] > vwap[i - 1] and closes[i] < vwap[i]:
-                signals[i] = "exit"
+        raise ValueError(
+            "The one-bar UTC HLC3 cross is not a VWAP pullback. "
+            "Use build_intraday_vwap on 15-minute bars."
+        )
     elif family == "bollinger_mean":
         _mid, _upper, lower = bollinger(closes, BB_PERIOD, 2.0)
         mid, _u, _l = bollinger(closes, BB_PERIOD, 2.0)
@@ -132,4 +126,40 @@ def build(family: str, bars: list[dict]) -> tuple[list[str], list[float | None]]
                 signals[i] = "exit"
     else:
         raise ValueError(family)
+    return signals, stops
+
+
+# Frozen before the intraday run. Not searched on the holdout.
+VWAP_MIN_BARS = 4
+
+
+def build_intraday_vwap(bars: list[dict]) -> tuple[list[str], list[float | None]]:
+    """Pull back to the UTC-day VWAP after having closed above it, then reclaim.
+
+    The VWAP at a bar uses that day's closed bars through the signal bar only.
+    A one-bar day cannot signal. The caller fills the signal on a later bar.
+    """
+    closes = [bar["close"] for bar in bars]
+    highs = [bar["high"] for bar in bars]
+    lows = [bar["low"] for bar in bars]
+    volumes = [bar["volume"] for bar in bars]
+    times = [bar["time"] for bar in bars]
+    signals = ["hold"] * len(bars)
+    stops = _stops_from_atr(highs, lows, closes)
+    vwap, count = anchored_session_vwap(times, highs, lows, closes, volumes)
+    for i in range(len(bars)):
+        if count[i] < VWAP_MIN_BARS or vwap[i] is None:
+            continue
+        day = int(times[i]) // 86400
+        was_above = False
+        earlier = i - 1
+        while earlier >= 0 and int(times[earlier]) // 86400 == day:
+            if vwap[earlier] is not None and closes[earlier] > vwap[earlier]:
+                was_above = True
+                break
+            earlier -= 1
+        if was_above and lows[i] <= vwap[i] < closes[i]:
+            signals[i] = "enter"
+        elif closes[i] < vwap[i]:
+            signals[i] = "exit"
     return signals, stops

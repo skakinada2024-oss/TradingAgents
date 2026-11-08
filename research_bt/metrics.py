@@ -13,10 +13,12 @@ def _completed(trades: list[dict]) -> list[dict]:
             entry = buys.get(trade["entry_time"])
             if entry is None:
                 continue
-            pnl = trade["qty"] * trade["price"] - entry["qty"] * entry["price"]
+            pnl = trade.get("pnl")
+            if pnl is None:
+                pnl = trade["cash_delta"] + entry["cash_delta"]
             done.append({
                 "pnl": pnl,
-                "hold_days": (trade["time"] - entry["time"]) / 86400,
+                "hold_hours": (trade["time"] - entry["time"]) / 3600,
             })
     return done
 
@@ -26,11 +28,15 @@ def summarize(result, start_cash: float, bars: int) -> dict:
     end = result.equity[-1]["equity"] if result.equity else start_cash
     peak = start_cash
     max_dd = 0.0
+    max_dd_pct = 0.0
     in_market = 0
     for point in result.equity:
         peak = max(peak, point["equity"])
-        max_dd = max(max_dd, peak - point["equity"])
-        if point["cash"] < point["equity"] - 1e-9:
+        drawdown = peak - point["equity"]
+        max_dd = max(max_dd, drawdown)
+        if peak > 0:
+            max_dd_pct = max(max_dd_pct, drawdown / peak)
+        if point.get("in_position"):
             in_market += 1
     wins = [row["pnl"] for row in done if row["pnl"] > 0]
     losses = [row["pnl"] for row in done if row["pnl"] < 0]
@@ -40,6 +46,7 @@ def summarize(result, start_cash: float, bars: int) -> dict:
         "net_return": (end / start_cash - 1.0) if start_cash else None,
         "ending_equity": end,
         "max_drawdown_usd": max_dd,
+        "max_drawdown_pct": max_dd_pct,
         "profit_factor": (gross_win / gross_loss) if gross_loss > 0 else None,
         "win_rate": (len(wins) / len(done)) if done else None,
         "avg_win": (sum(wins) / len(wins)) if wins else None,
@@ -47,7 +54,7 @@ def summarize(result, start_cash: float, bars: int) -> dict:
         "expectancy": (sum(row["pnl"] for row in done) / len(done)) if done else None,
         "completed_trades": len(done),
         "exposure": (in_market / bars) if bars else None,
-        "avg_hold_days": (sum(row["hold_days"] for row in done) / len(done)) if done else None,
+        "avg_hold_hours": (sum(row["hold_hours"] for row in done) / len(done)) if done else None,
         "blocked_entries": result.blocked_entries,
         "session_resets": list(result.session_resets),
     }

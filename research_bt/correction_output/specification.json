@@ -1,0 +1,42 @@
+{
+  "kind": "posthoc_methodology_correction",
+  "fresh_unseen": false,
+  "daily_holdout_label": "inspected_holdout",
+  "vwap_holdout_label": "first_look_holdout",
+  "rejected_proxy": "one-bar UTC HLC3 cross is not a VWAP pullback",
+  "vwap_rule": "UTC session VWAP, at least 4 closed bars, prior close above VWAP, signal bar low at or through VWAP and close back above, entry on the next bar",
+  "costs": [
+    {
+      "name": "primary_65bps_per_side",
+      "role": "primary_stress",
+      "commission": 0.006,
+      "slip": 0.0005
+    },
+    {
+      "name": "primary_70bps_per_side",
+      "role": "primary_stress",
+      "commission": 0.006,
+      "slip": 0.001
+    },
+    {
+      "name": "optimistic_10bps_per_side",
+      "role": "optimistic_sensitivity",
+      "commission": 0.001,
+      "slip": 0.0
+    },
+    {
+      "name": "optimistic_25bps_per_side",
+      "role": "optimistic_sensitivity",
+      "commission": 0.0025,
+      "slip": 0.0
+    }
+  ],
+  "spread_rate": 0.0,
+  "spread_note": "Candles are trade prints. Slippage is the allowance for crossing the spread. A spread is not added again.",
+  "risk_per_trade_usd": 0.5,
+  "risk_note": "Size uses the stop as the adverse exit and adds entry and exit commission and slippage. The planned loss is kept at or under 0.50. A gap can lose more. No future exit price is used.",
+  "experiment_loss": "cumulative realized losses, not restored by later profits, no calendar reset, per 100 USD book. The next entry is sized to the budget still left, so the plan does not exceed 2 USD. A gap can still lose more.",
+  "monthly_loss": "separate research scenario, resets each UTC month",
+  "two_hour_loss": "separate intraday research scenario, resets every 7200 seconds and is not the whole-book allowance",
+  "trade_count_note": "A 30-trade cutoff in the first run was this study's heuristic. It is not a guarantee and a low count is inconclusive even when the return is positive."
+}

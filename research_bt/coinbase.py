@@ -22,28 +22,46 @@ def _get(url: str):
         return json.load(response)
 
 
+def _get_retry(url: str):
+    import urllib.error
+    last = None
+    for attempt in range(5):
+        try:
+            return _get(url)
+        except urllib.error.HTTPError as exc:
+            last = exc
+            if exc.code != 429:
+                raise
+            time.sleep(2 ** attempt)
+    if last is not None:
+        raise last
+    raise RuntimeError(url)
+
+
 def fetch_product(product: str) -> dict:
     return _get(PRODUCTS.format(product=product))
 
 
-def fetch_candles(product: str, start: datetime, end: datetime) -> list[dict]:
-    """Paginate at most 300 daily candles per request. Drop an unfinished day."""
+def fetch_candles(product: str, start: datetime, end: datetime, granularity: int = GRANULARITY) -> list[dict]:
+    """Paginate at most 300 candles per request. Drop a bucket that has not closed."""
+    if granularity not in {60, 300, 900, 3600, 21600, 86400}:
+        raise ValueError("Coinbase granularity must be one of 60, 300, 900, 3600, 21600, 86400")
     retrieved = int(datetime.now(UTC).timestamp())
     cursor = int(start.timestamp())
     stop = int(end.timestamp())
     rows = {}
     while cursor < stop:
-        chunk_end = min(stop, cursor + 300 * GRANULARITY)
+        chunk_end = min(stop, cursor + 300 * granularity)
         url = (
-            f"{URL.format(product=product)}?granularity={GRANULARITY}"
+            f"{URL.format(product=product)}?granularity={granularity}"
             f"&start={datetime.fromtimestamp(cursor, UTC).strftime('%Y-%m-%dT%H:%M:%SZ')}"
             f"&end={datetime.fromtimestamp(chunk_end, UTC).strftime('%Y-%m-%dT%H:%M:%SZ')}"
         )
-        payload = _get(url)
+        payload = _get_retry(url)
         for item in payload:
             ts, low, high, open_, close, volume = item
             ts = int(ts)
-            if ts + GRANULARITY > retrieved:
+            if ts + granularity > retrieved:
                 continue
             rows[ts] = {
                 "time": ts,
