@@ -1,0 +1,61 @@
+//@version=6
+strategy("100 USD Crypto Breakout + Rebound Test",
+     overlay=true,
+     initial_capital=100,
+     currency=currency.USD,
+     pyramiding=0,
+     margin_long=100,
+     commission_type=strategy.commission.percent,
+     commission_value=0.65)
+// Research model: 0.65% assumed cost per side.
+// Update feeRate AND commission_value together if needed.
+float feeRate = 0.0065
+float maxCash = input.float(20.0, "Max position USD")
+float maxRisk = input.float(0.50, "Planned risk USD")
+float minNotional = input.float(10.0, "Min notional USD")
+float qtyStep = input.float(0.0001, "Quantity increment",
+     minval=0.00000001)
+// Daily drawdown guard, not a replacement for
+// the separate $2 cumulative session-loss ledger.
+strategy.risk.allow_entry_in(strategy.direction.long)
+strategy.risk.max_intraday_loss(2.0, strategy.cash)
+// Indicators
+float ema20 = ta.ema(close, 20)
+float rsi14 = ta.rsi(close, 14)
+float atr14 = ta.atr(14)
+float priorHigh = ta.highest(high, 12)[1]
+// Two possible entries
+bool breakout = close > priorHigh and
+     close > ema20 and rsi14 > 55
+bool rebound = ta.crossover(rsi14, 35) and
+     close > open and close > close[1]
+bool signal = barstate.isconfirmed and
+     (breakout or rebound)
+// Sizing based on capital and estimated all-in loss
+float stopDistance = math.max(atr14 * 1.2, close * 0.008)
+float cashBudget = math.min(maxCash, strategy.equity * 0.20)
+float qtyCash = cashBudget / (close * (1 + feeRate))
+float qtyRisk = maxRisk /
+     (stopDistance + close * 2 * feeRate)
+float qty = math.floor(math.min(qtyCash, qtyRisk) /
+     qtyStep) * qtyStep
+bool feasible = qty > 0 and
+     qty * close >= minNotional and
+     qty * (stopDistance + 2 * feeRate * close) <= maxRisk
+// Approximate target for 2:1 NET reward/risk
+// under a symmetric per-side cost assumption.
+float targetDistance = 2 * stopDistance +
+     6 * feeRate * close
+if signal and feasible and strategy.position_size == 0
+    strategy.entry("Long", strategy.long, qty=qty)
+    strategy.exit("Exit", from_entry="Long",
+         stop=close-stopDistance,
+         limit=close+targetDistance)
+// Visual indicators
+plot(ema20, "EMA 20", color=color.orange)
+plot(priorHigh, "Prior 12-bar high", color=color.blue)
+plotshape(signal, title="Candidate signal",
+     style=shape.triangleup,
+     location=location.belowbar,
+     color=color.lime,
+     size=size.tiny)

@@ -1,0 +1,9 @@
+{
+  "source": "https://api.exchange.coinbase.com/products/BTC-USD/candles",
+  "granularity": 3600,
+  "retrieved_utc": "2026-11-15T00:48:13.729984+00:00",
+  "quote": "USD",
+  "venue": "Coinbase Exchange spot",
+  "tail_rule": "Drop a bucket that ends after retrieval minus one interval.",
+  "bars": 25165
+}

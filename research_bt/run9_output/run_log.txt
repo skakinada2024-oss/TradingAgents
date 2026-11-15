@@ -1,0 +1,7 @@
+prior_attempt: 2026-11-08 process interrupted during SOL-USD 15m fetch; no committed score
+command: .venv/bin/python -m pytest tests/test_pine_breakout.py tests/test_research_bt.py -q --tb=line --noconftest
+result: 23 passed
+command: .venv/bin/python -u -m research_bt.finish_run9 research_bt/run9_output
+started: 2026-11-15T00:48:13Z finished: 2026-11-15T00:50:16Z failures: none
+decision: NO_VALIDATED_STRATEGY
+No order was sent.

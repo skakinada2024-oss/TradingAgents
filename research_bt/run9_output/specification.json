@@ -1,0 +1,27 @@
+{
+  "run": 9,
+  "started_utc": "2026-11-15T00:48:13.593173+00:00",
+  "continues_from": "b297279",
+  "prior_attempt": "Interrupted on 2026-11-08 while fetching SOL-USD 15-minute candles. No scored result was committed.",
+  "families": [
+    "donchian_breakout",
+    "breakout_retest",
+    "atr_trend"
+  ],
+  "window_status": "inspected",
+  "capital_usd": 100,
+  "leverage": 1,
+  "side": "long_only",
+  "planned_loss_usd": 0.5,
+  "cumulative_loss_usd": 2.0,
+  "loss_resets": false,
+  "cost_per_side": 0.0065,
+  "cost_note": "0.65 percent per side is the whole modeled cost. Slippage and spread are not added again.",
+  "regimes": "Lagged close versus EMA20 at the signal bar. trend_down longs are reversal attempts, not shorts.",
+  "cells": [
+    "1d reused from research_bt/output, 2024-01-01 through 2026-11-07",
+    "15m reused from research_bt/correction_output, about 2026-04-22 through 2026-11-08",
+    "1h Coinbase fetch 2024-01-01 through the last closed hour before retrieval",
+    "5m Coinbase fetch 2026-10-25 through the last closed 5-minute bar, for the Pine comparison and the same three families"
+  ]
+}
